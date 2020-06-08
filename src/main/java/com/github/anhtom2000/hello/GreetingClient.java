@@ -23,7 +23,7 @@ public class GreetingClient {
     Socket client;
     DataOutputStream out;
     DataInputStream in;
-
+    private String receiveData;
 
     @PostConstruct
     public void finish() throws IOException {
@@ -37,21 +37,40 @@ public class GreetingClient {
     }
 
     public void receive()  {
-        try {
-            in = new DataInputStream(client.getInputStream());
+
+            while(true)
+                if(client!=null)
+                {
+                    try {
+                        in = new DataInputStream(client.getInputStream());
+                    } catch (IOException e) {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
+                    }
+                    break;
+                }
+
             while (true) {
-                String receiveData = in.readLine();
-                System.out.println(in);
-                System.out.println(receiveData);
-                log.info("receive data={}", receiveData);
+                try {
+                    byte[] data = new byte[1024];
+                    int len = -1;
+                    while((len = in.read(data))!=-1){
+                        receiveData = new String(data,0,len);
+                        log.info("receive data={}", receiveData);
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
-        } catch (IOException e) {
-            e.printStackTrace();
         }
-    }
+
 
 
     public DataOutputStream getOut() {
         return out;
+    }
+
+    public String getReceiveData() {
+        return receiveData;
     }
 }

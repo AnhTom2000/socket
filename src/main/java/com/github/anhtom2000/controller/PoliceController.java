@@ -55,14 +55,20 @@ public class PoliceController {
         return null;
     }
 
+    @ResponseBody
     @RequestMapping("/getPolice")
     public Police getPolice(){
+        Police police = null;
         try {
             greetingServer.getOut().write("3_2".getBytes());
+            police = new Police();
+            while(greetingServer.getReceiveData()==null){}
+            String receiveData = greetingServer.getReceiveData();
+            police.setOpened("3_1".equals(receiveData));
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return null;
+        return police;
     }
 
 }

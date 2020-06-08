@@ -49,31 +49,44 @@ public class LedController {
         User user = userService.queryByName(name);
         led.setUser(user);
         led.setControlTime(LocalDateTime.now(Clock.systemDefaultZone()));
-        String logInfo  = led.getLedName();
-        logInfo+=led.getOpened() ? ",开灯":",“关灯";
-        log.info("led的状态:{}",logInfo);
+        String logInfo = led.getLedName();
+        logInfo += led.getOpened() ? ",开灯" : ",“关灯";
+        log.info("led的状态:{}", logInfo);
         ledService.insert(led);
         return null;
     }
 
+    @ResponseBody
     @RequestMapping("/getLed1")
-    public Led getLed1(){
+    public Led getLed1() {
+        Led led = null;
         try {
             greetingClient.getOut().write("1_2".getBytes());
+            while (greetingClient.getReceiveData() == null) { }
+            String receiveData = greetingClient.getReceiveData();
+            log.info("data:", receiveData);
+            led = new Led();
+            led.setOpened("1_1".equals(receiveData));
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return null;
+        return led;
     }
-
+    @ResponseBody
     @RequestMapping("/getLed2")
-    public Led getLed2(){
+    public Led getLed2() {
+        Led led = null;
         try {
             greetingClient.getOut().write("2_2".getBytes());
+            while (greetingClient.getReceiveData() == null) { }
+            String receiveData = greetingClient.getReceiveData();
+            log.info("data:",receiveData);
+            led = new Led();
+            led.setOpened("2_1".equals(receiveData));
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return  null;
+        return led;
     }
 
 
