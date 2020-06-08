@@ -8,7 +8,6 @@ import com.github.anhtom2000.service.LedService;
 import com.github.anhtom2000.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -42,37 +41,29 @@ public class LedController {
     @Autowired
     private GreetingClient greetingClient;
 
-    @RequestMapping("/ledToggle")
-    @ResponseBody
-    public String ledToggle(@AuthenticationPrincipal Principal principal, @RequestBody Led led) {
-        String name = principal.getName();
-        User user = userService.queryByName(name);
-        led.setUser(user);
-        led.setControlTime(LocalDateTime.now(Clock.systemDefaultZone()));
-        String logInfo  = led.getLedName();
-        logInfo+=led.getOpened() ? ",开灯":",“关灯";
-        log.info("led的状态:{}",logInfo);
-        ledService.insert(led);
-        return null;
-    }
+//    @RequestMapping("/ledToggle")
+//    @ResponseBody
+//    public String ledToggle(@AuthenticationPrincipal Principal principal, @RequestBody Led led) {
+//        String name = principal.getName();
+//        User user = userService.queryByName(name);
+//        led.setUser(user);
+//        led.setControlTime(LocalDateTime.now(Clock.systemDefaultZone()));
+//        String logInfo  = led.getLedName();
+//        logInfo+=led.getOpened() ? ",开灯":",“关灯";
+//        log.info("led的状态:{}",logInfo);
+//        ledService.insert(led);
+//        return null;
+//    }
 
     @RequestMapping("/getLed1")
     public Led getLed1(){
-        try {
-            greetingClient.getOut().write("1_2".getBytes());
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        greetingClient.requestToSerialPortServer("1_2");
         return null;
     }
 
     @RequestMapping("/getLed2")
     public Led getLed2(){
-        try {
-            greetingClient.getOut().write("2_2".getBytes());
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        greetingClient.requestToSerialPortServer("2_2");
         return  null;
     }
 

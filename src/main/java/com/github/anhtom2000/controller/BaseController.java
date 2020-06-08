@@ -4,7 +4,6 @@ import com.github.anhtom2000.entity.User;
 import com.github.anhtom2000.service.UserService;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -48,7 +47,7 @@ public class BaseController {
         }
         user = User.builder()
                 .username(username)
-                .password(new BCryptPasswordEncoder().encode(password))
+//                .password(new BCryptPasswordEncoder().encode(password))
                 .createTime(LocalDateTime.now(Clock.systemDefaultZone()))
                 .loginTime(LocalDateTime.now(Clock.systemDefaultZone())).build();
         userService.insert(user);
