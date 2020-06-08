@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.css" rel="stylesheet">
+    <title>fatControl物联网系统</title>
+</head>
+<style>
+    .container {
+        width: 100%;
+        height: 100%;
+        position: relative;
+    }
+</style>
+<body>
+<div th:insert="~{header :: nav}"></div>
+<div class="jumbotron">
+<div class="container" style="padding-top: 30px">
+    <h1>fatControl物联网系统</h1>
+    <p style="margin-top: 20px;">一个功能简单的物联网控制系统，可以通过网页控制物联网智能家居设备。</p>
+    <p style="margin-top: 20px;"><a class="btn btn-primary btn-lg" href="/control" role="button"> 控制区 &raquo;</a></p>
+</div>
+</div>
+
+
+</body>
+</html>

@@ -1,0 +1,13 @@
+server:
+  port: 8777
+spring:
+  thymeleaf:
+    suffix: .html
+    cache: false
+  datasource:
+    url: jdbc:mysql://localhost:3306/worksend?serverTimezone=UTC
+    username: root
+    password: 8761797
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+

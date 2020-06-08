@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>管理员</title>
+    <!-- 引入bootstrap-table样式 -->
+    <link href="https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.css" rel="stylesheet">
+    <link href="https://cdn.bootcss.com/bootstrap-table/1.11.1/bootstrap-table.min.css" rel="stylesheet">
+</head>
+<style>
+    .container {
+        width: 100%;
+        height: 100%;
+        position: relative;
+    }
+</style>
+<body>
+<div th:insert="~{header :: nav}"></div>
+<div class="container">
+    <div style="margin-top: 100px;">
+        <h3>LED操作：</h3>
+        <table id="table"></table>
+    </div>
+    <div style="margin-top: 30px;">
+        <h3>报警器操作：</h3>
+        <table id="table1"></table>
+    </div>
+</div>
+</body>
+<script src="https://cdn.bootcss.com/jquery/2.2.3/jquery.min.js"></script>
+<script src="https://unpkg.com/bootstrap-table@1.15.5/dist/bootstrap-table.min.js"></script>
+
+<!--<script src="https://weleness-1300955279.cos.ap-guangzhou.myqcloud.com/cdn/Blog/admin/js/admin/bootstrap-table-export.min.js"></script>-->
+
+<!-- bootstrap-table.min.js -->
+<!-- 引入中文语言包 -->
+
+<script src="https://weleness-1300955279.cos.ap-guangzhou.myqcloud.com/cdn/Blog/admin/js/admin/bootstrap-table-zh-CN.min.js"></script>
+<script>
+    
+    function booleanFormat(value, row, index) {
+        var content = value ? "开灯":"关灯";
+        return "<span >" + content + "</span>";
+    }
+
+    function baojinFormat(value, row, index) {
+        var content = value ? "报警":"关闭";
+        return "<span>"+content+"</span>";
+    }
+
+    function delLed(id) {
+       $.ajax({
+           url : "/admin/deleteLed/"+id,
+           type : 'get'
+       }).then(data=>{
+           console.info(data.rows);
+       })
+    }
+
+    function delPolice(id) {
+        $.ajax({
+            url : "/admin/deletePolice/"+id,
+            type : 'get'
+        }).then(data=>{
+            console.info(data.rows);
+        })
+    }
+    // 格式化表格
+    /**
+     * 表格中字段内容过长时采用缩略方式
+     */
+    function contentFormatter(value, row, index) {
+        var content = value;
+        if (value && value.length > 10) {
+            content = value.substr(0, 10) + "..."
+        }
+        return "<span data-toggle='tooltip' data-html='true'  data-placement=\"top\" title=\"" + value + "\">" + content + "</span>";
+    }
+    //默认加载时携带参数
+    function queryParams(params) {
+        var params = { //这里的键的名字和控制器的变量名必须一直，这边改动，控制器也需要改成一样的
+           offset: Math.ceil(params.offset / params.limit) + 1, //页码
+            pageSize: params.limit, //页面大小
+            "status": $("#status").val()
+        };
+        return params;
+    }
+    $("#table").bootstrapTable({ // 对应table标签的id
+        url: "/admin/getLed", // 获取表格数据的url
+        method: 'get',
+        contentType: 'application/x-www-form-urlencoded',
+        striped: true,   //是否显示行间隔色
+        cache: false,   //是否使用缓存，默认为true，所以一般情况下需要设置一下这个属性（*）
+        pagination: true,   //是否显示分页（*）
+        //sortable: false,   //是否启用排序
+        sidePagination: "server",  //分页方式：client客户端分页，server服务端分页（*）
+        pageNumber: 1,   //初始化加载第一页，默认第一页
+        pageSize: 5,   //每页的记录行数（*）
+        pageList: [5, 10, 25, 50, 100], //可供选择的每页的行数（*）
+        paginationPreText: "Previous",
+        paginationNextText: "Next",
+        paginationFirstText: "First",
+        paginationLastText: "Last",
+        sortOrder: "asc",   //排序方式
+        minimumCountColumns: 5,             //最少允许的列数
+        buttonsAlign: "right",//按钮对齐方式
+        //showColumns: true,//列选择按钮
+        clickToSelect: true,  //是否启用点击选中行
+        //height: 500,   //行高，如果没有设置height属性，表格自动根据记录条数觉得表格高度
+        uniqueId: "id",   //每一行的唯一标识，一般为主键列
+        cardView: false,   //是否显示详细视图
+        detailView: false,   //是否显示父子表
+        queryParamsType: 'limit',
+        queryParams: queryParams,
+        maintainSelected: true,
+        columns: [
+            {
+                checkbox: true, // 显示一个勾选框
+                align: 'center' // 居中显示
+            }, {
+                field: 'ledId', // 返回json数据中的name
+                title: '编号', // 表格表头显示文字
+                align: 'center', // 左右居中
+                valign: 'middle' // 上下居中
+            }, {
+                field: 'ledName',
+                title: '名称',
+                align: 'center',
+                valign: 'middle'
+            }, {
+                field: 'user.username',
+                title: '用户名称',
+                align: 'center',
+                valign: 'middle',
+                formatter: contentFormatter
+            },
+            {
+                field: 'opened',
+                title: 'led状态',
+                align: 'center',
+                valign: 'middle',
+                formatter: booleanFormat
+            },
+            {
+                field: 'controlTime',
+                title: '操作时间',
+                align: 'center',
+                valign: 'middle',
+                formatter: contentFormatter
+            },
+            {
+                title: "操作",
+                align: 'center',
+                valign: 'middle',
+                width: 160, // 定义列的宽度，单位为像素px
+                formatter: function (value, row, index) {
+                    return '<button class="btn btn-primary btn-sm" οnclick="delLed(' + row.ledId + ')">删除</button>';
+                }
+            }
+        ],
+        onLoadSuccess: function () {  //加载成功时执行
+            console.info("加载成功");
+        },
+        onLoadError: function () {  //加载失败时执行
+            console.info("加载数据失败");
+        }
+
+    });
+
+    $("#table1").bootstrapTable({ // 对应table标签的id
+        url: "/admin/getPolice", // 获取表格数据的url
+        method: 'get',
+        contentType: 'application/x-www-form-urlencoded',
+        striped: true,   //是否显示行间隔色
+        cache: false,   //是否使用缓存，默认为true，所以一般情况下需要设置一下这个属性（*）
+        pagination: true,   //是否显示分页（*）
+        //sortable: false,   //是否启用排序
+        sidePagination: "server",  //分页方式：client客户端分页，server服务端分页（*）
+        pageNumber: 1,   //初始化加载第一页，默认第一页
+        pageSize: 5,   //每页的记录行数（*）
+        pageList: [5, 10, 25, 50, 100], //可供选择的每页的行数（*）
+        paginationPreText: "Previous",
+        paginationNextText: "Next",
+        paginationFirstText: "First",
+        paginationLastText: "Last",
+        sortOrder: "asc",   //排序方式
+        minimumCountColumns: 5,             //最少允许的列数
+        buttonsAlign: "right",//按钮对齐方式
+        //showColumns: true,//列选择按钮
+        clickToSelect: true,  //是否启用点击选中行
+        //height: 500,   //行高，如果没有设置height属性，表格自动根据记录条数觉得表格高度
+        uniqueId: "id",   //每一行的唯一标识，一般为主键列
+        cardView: false,   //是否显示详细视图
+        detailView: false,   //是否显示父子表
+        queryParamsType: 'limit',
+        queryParams: queryParams,
+        maintainSelected: true,
+        columns: [
+            {
+                checkbox: true, // 显示一个勾选框
+                align: 'center' // 居中显示
+            }, {
+                field: 'policeId', // 返回json数据中的name
+                title: '编号', // 表格表头显示文字
+                align: 'center', // 左右居中
+                valign: 'middle' // 上下居中
+            }, {
+                field: 'user.username',
+                title: '用户名称',
+                align: 'center',
+                valign: 'middle',
+                formatter: contentFormatter
+            },
+            {
+                field: 'opened',
+                title: '报警器状态',
+                align: 'center',
+                valign: 'middle',
+                formatter: baojinFormat
+            },
+            {
+                field: 'policeTime',
+                title: '操作时间',
+                align: 'center',
+                valign: 'middle',
+                formatter: contentFormatter
+            },
+            {
+                title: "操作",
+                align: 'center',
+                valign: 'middle',
+                width: 160, // 定义列的宽度，单位为像素px
+                formatter: function (value, row, index) {
+                    return '<button class="btn btn-primary btn-sm" οnclick="delLed(' + row.policeId + ')">删除</button>';
+                }
+            }
+        ],
+        onLoadSuccess: function () {  //加载成功时执行
+            console.info("加载成功");
+        },
+        onLoadError: function () {  //加载失败时执行
+            console.info("加载数据失败");
+        }
+
+    });
+</script>
+</html>

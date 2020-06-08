@@ -1,0 +1,8 @@
+CREATE TABLE tb_led(
+led_id INT(11) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'led灯主键' ,
+led_name VARCHAR (11) NOT NULL COMMENT 'led灯名',
+opened BIT NOT NULL COMMENT 'led状态',
+user_id BIGINT(20) UNSIGNED NOT NULL COMMENT '操作的用户id',
+control_time TIMESTAMP  NOT NULL COMMENT '操作时间',
+PRIMARY KEY (led_id)
+)ENGINE = InnoDB  DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='led表';
