@@ -52,6 +52,11 @@
     svg {
         cursor: pointer;
     }
+
+    .btns button {
+        margin-left: 100px;
+
+    }
 </style>
 <body>
 <div th:insert="~{header :: nav}"></div>
@@ -87,6 +92,11 @@
                   p-id="9351" :fill="b"></path>
         </svg>
     </div>
+    <div class="col-md-12 col-lg-12 btns" style="margin-left: 500px">
+        <button class="btn btn-danger" @click="getPolices">获取警报器状态</button>
+        <button class="btn btn-warning" @click="getLed1s">获取客厅灯状态</button>
+        <button class="btn btn-warning" @click="getLed2s">获取房间灯状态</button>
+    </div>
 </div>
 
 </body>
@@ -103,39 +113,46 @@
                 baoJinStatus: false
             }
         }, mounted() {
-            var v = this;
-            axios({
-                url: "/led/getLed1",
-                method: 'get'
-            }).then(res => {
-                this.deng1Status = res.data.opened;
-            });
-
+            this.getLed1();
             setTimeout(() => {
+                this.getLed2();
+            }, 500);
+            setTimeout(() => {
+                this.getPolice();
+            }, 700);
+        }
+        ,
+        methods: {
+            getLed1s() {
+                axios({
+                    url: "/led/getLed1",
+                    method: 'get'
+                }).then(res => {
+                    this.deng1Status = res.data;
+                    let  status = this.deng1Status ? "开灯" : "关灯";
+                    alert("客厅灯的状态是：" + status);
+                });
+            }, getLed2s() {
                 axios({
                     url: "/led/getLed2",
                     method: 'get'
                 }).then(res => {
-                    this.deng2Status = res.data.opened;
+                    this.deng2Status = res.data;
+                    let  status =  this.deng2Status ? "开灯" : "关灯";
+                    alert("房间灯的状态是：" +status);
                 });
-            }, 500);
-
-            setTimeout(() => {
+            }, getPolices() {
                 axios({
                     url: "/police/getPolice",
                     method: "get"
                 }).then(res => {
-                    v.baoJinStatus = res.data.opened;
+                    this.baoJinStatus = res.data;
+                    let status = this.baoJinStatus ? "报警" : "关闭";
+                    alert("警报器的状态是：" + status);
                 })
-            });
 
-
-            console.log("实例化");
-        }
-        ,
-        methods: {
+            },
             dengToggle(id) {
-                console.log(id);
                 if (id === 1) {
                     this.deng1Status = !this.deng1Status;
                     axios({
@@ -147,7 +164,6 @@
                             opened: this.deng1Status
                         }
                     }).then(res => {
-
                     })
                 } else {
                     this.deng2Status = !this.deng2Status;
@@ -160,7 +176,6 @@
                             opened: this.deng2Status
                         }
                     }).then(res => {
-
                     })
                 }
             }, baoJinToggle() {
@@ -175,14 +190,33 @@
                 }).then(res => {
 
                 })
+            }, getLed1() {
+                axios({
+                    url: "/led/getLed1",
+                    method: 'get'
+                }).then(res => {
+                    this.deng1Status = res.data;
+                });
+            }, getLed2() {
+                axios({
+                    url: "/led/getLed2",
+                    method: 'get'
+                }).then(res => {
+                    this.deng2Status = res.data;
+                });
+            }, getPolice() {
+                axios({
+                    url: "/police/getPolice",
+                    method: "get"
+                }).then(res => {
+                    this.baoJinStatus = res.data;
+                })
             }
         }, computed: {
             c1() {
-                console.log(this.deng1Status)
                 return this.deng1Status ? this.colors[0] : this.colors[1];
             },
             c2() {
-                console.log(this.deng2Status)
                 return this.deng2Status ? this.colors[0] : this.colors[1];
             },
             b() {

@@ -10,11 +10,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
+import org.springframework.util.ObjectUtils;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import java.io.IOException;
 import java.security.Principal;
 import java.time.Clock;
 import java.time.LocalDateTime;
@@ -42,6 +42,10 @@ public class LedController {
     @Autowired
     private GreetingClient greetingClient;
 
+    private boolean status1 = false;
+
+    private boolean status2 = false;
+
     @RequestMapping("/ledToggle")
     @ResponseBody
     public String ledToggle(@AuthenticationPrincipal Principal principal, @RequestBody Led led) {
@@ -58,35 +62,26 @@ public class LedController {
 
     @ResponseBody
     @RequestMapping("/getLed1")
-    public Led getLed1() {
-        Led led = null;
-        try {
-            greetingClient.getOut().write("1_2".getBytes());
-            while (greetingClient.getReceiveData() == null) { }
-            String receiveData = greetingClient.getReceiveData();
-            log.info("data:", receiveData);
-            led = new Led();
-            led.setOpened("1_1".equals(receiveData));
-        } catch (IOException e) {
-            e.printStackTrace();
+    public Boolean getLed1() {
+        greetingClient.requestToSerialPortServer("1_2");
+        while (ObjectUtils.isEmpty(greetingClient.getReceiveData())) {}
+        String receiveData = greetingClient.getReceiveData();
+        if (receiveData.startsWith("1_")) {
+            status1 = receiveData.trim().equals("1_1");
         }
-        return led;
+        return status1;
     }
+
     @ResponseBody
     @RequestMapping("/getLed2")
-    public Led getLed2() {
-        Led led = null;
-        try {
-            greetingClient.getOut().write("2_2".getBytes());
-            while (greetingClient.getReceiveData() == null) { }
-            String receiveData = greetingClient.getReceiveData();
-            log.info("data:",receiveData);
-            led = new Led();
-            led.setOpened("2_1".equals(receiveData));
-        } catch (IOException e) {
-            e.printStackTrace();
+    public Boolean getLed2() {
+        greetingClient.requestToSerialPortServer("2_2");
+        while (ObjectUtils.isEmpty(greetingClient.getReceiveData())) {}
+        String receiveData = greetingClient.getReceiveData();
+        if (receiveData.startsWith("2_")) {
+            status2 = receiveData.trim().equals("2_1");
         }
-        return led;
+        return status2;
     }
 
 

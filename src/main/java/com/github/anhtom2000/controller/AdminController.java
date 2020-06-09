@@ -8,10 +8,7 @@ import com.github.anhtom2000.service.PoliceService;
 import org.apache.ibatis.jdbc.Null;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -20,7 +17,7 @@ import java.util.List;
  * @Author : Weleness
  * @Date : 2020/06/06
  */
-@Controller
+@RestController
 @RequestMapping("/admin")
 public class AdminController {
 
@@ -34,13 +31,11 @@ public class AdminController {
         this.ledService = ledService;
     }
 
-    @ResponseBody
     @RequestMapping("/getLed")
     public AdminDTO<List<Led>> getLed(@RequestParam("offset") int offset, @RequestParam("pageSize") int pageSize){
         return ledService.queryAllByLimit(offset, pageSize);
     }
 
-    @ResponseBody
     @RequestMapping("/getPolice")
     public AdminDTO<List<Police>> getPolice(@RequestParam("offset") int offset, @RequestParam("pageSize") int pageSize){
         return policeService.queryAllByLimit(offset, pageSize);

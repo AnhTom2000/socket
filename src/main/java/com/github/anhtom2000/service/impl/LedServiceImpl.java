@@ -46,21 +46,16 @@ public class LedServiceImpl implements LedService {
         Integer count = ledMapper.getCount();
         return new AdminDTO<>(200, null, leds, count, true);
     }
+
     @Transactional(isolation = Isolation.REPEATABLE_READ, propagation = Propagation.REQUIRED, rollbackFor = Throwable.class)
     @Override
     public void insert(Led led) {
         ledMapper.insert(led);
         String protocol;
-        try {
-            protocol = led.getLedId() + "_";
-            protocol += led.getOpened() ? "1" : "0";
-            DataOutputStream out = GreetingClient.getOut();
-            out.write(protocol.getBytes());
-            out.write("\r\n".getBytes());
-            out.flush();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        protocol = led.getLedId() + "_";
+        protocol += led.getOpened() ? "1" : "0";
+        GreetingClient.requestToSerialPortServer(protocol);
+        GreetingClient.requestToSerialPortServer("\r\n");
     }
 
     @Transactional(isolation = Isolation.REPEATABLE_READ, propagation = Propagation.REQUIRED, rollbackFor = Throwable.class)

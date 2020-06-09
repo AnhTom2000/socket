@@ -10,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
+import org.springframework.util.ObjectUtils;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -30,8 +31,9 @@ import java.time.LocalDateTime;
 @Slf4j
 public class PoliceController {
     /**
-    // * 服务对象
-    // */
+     * // * 服务对象
+     * //
+     */
     @Autowired
     private PoliceService policeService;
 
@@ -39,36 +41,34 @@ public class PoliceController {
     private UserService userService;
 
     @Autowired
-    private GreetingClient greetingServer;
+    private GreetingClient greetingClient;
+
+    private boolean status = false;
 
     @RequestMapping("/doPolice")
     @ResponseBody
-    public String doPolice(@AuthenticationPrincipal Principal principal, @RequestBody Police police){
+    public String doPolice(@AuthenticationPrincipal Principal principal, @RequestBody Police police) {
         String name = principal.getName();
         User user = userService.queryByName(name);
         police.setUser(user);
         police.setPoliceTime(LocalDateTime.now(Clock.systemDefaultZone()));
-        String logInfo  = "警报器";
-        logInfo+=police.getOpened() ? ",报警":",“关闭";
-        log.info("警报器的状态:{}",logInfo);
+        String logInfo = "警报器";
+        logInfo += police.getOpened() ? ",报警" : ",“关闭";
+        log.info("警报器的状态:{}", logInfo);
         policeService.insert(police);
         return null;
     }
 
     @ResponseBody
     @RequestMapping("/getPolice")
-    public Police getPolice(){
-        Police police = null;
-        try {
-            greetingServer.getOut().write("3_2".getBytes());
-            police = new Police();
-            while(greetingServer.getReceiveData()==null){}
-            String receiveData = greetingServer.getReceiveData();
-            police.setOpened("3_1".equals(receiveData));
-        } catch (IOException e) {
-            e.printStackTrace();
+    public Boolean getPolice() {
+        greetingClient.requestToSerialPortServer("3_2");
+        while (ObjectUtils.isEmpty(greetingClient.getReceiveData())) {}
+        String receiveData = greetingClient.getReceiveData();
+        if (receiveData.startsWith("3_")) {
+            status = receiveData.trim().equals("3_1");
         }
-        return police;
+        return status;
     }
 
 }

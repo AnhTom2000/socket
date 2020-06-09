@@ -44,14 +44,8 @@ public class PoliceServiceImpl implements PoliceService {
         policeMapper.insert(police);
         String protrol = police.getPoliceId() + "_";
         protrol += police.getOpened() ? "1" : "0";
-        DataOutputStream out = greetingServer.getOut();
-        try {
-            out.write(protrol.getBytes());
-            out.write("\r\n".getBytes());
-            out.flush();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        greetingServer.requestToSerialPortServer(protrol);
+        greetingServer.requestToSerialPortServer("\r\n");
     }
 
 

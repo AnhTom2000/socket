@@ -2,6 +2,7 @@ package com.github.anhtom2000.controller;
 
 import com.github.anhtom2000.entity.User;
 import com.github.anhtom2000.service.UserService;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -19,6 +20,7 @@ import java.time.LocalDateTime;
  * @Date : 2020/06/06
  */
 @Controller
+@Slf4j
 public class BaseController {
 
     @Autowired
@@ -42,7 +44,7 @@ public class BaseController {
     @PostMapping("/register")
     public String doRegister(@Param("username") String username, @Param("password") String password) {
         User user = userService.queryByName(username);
-        System.out.println(username);
+        log.info("USER : "+username+" want to register");
         if (user != null) {
             return "redirect:register?error";
         }
